@@ -1,3 +1,4 @@
+# encoding: utf-8
 require "parkour/version"
 require "paint"
 
@@ -37,7 +38,7 @@ module Parkour
   end
 
   def begin_line(tp)
-    line = File.readlines(tp.path)[tp.lineno - 1].sub(/^\s+/, '').strip
+    line = File.readlines(tp.path, encoding: 'utf-8')[tp.lineno - 1].sub(/^\s+/, '').strip
     @last_line = {
       time: "...",
       line: line,
