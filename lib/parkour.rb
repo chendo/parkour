@@ -20,10 +20,11 @@ module Parkour
     end
   end
 
+  INDENT_AMOUNT = 2
   def format_line(time:, line:, path:, line_no:, depth:, event:, return_value: nil)
     str = StringIO.new
     str << "[#{time.rjust(9)}] "
-    str << "#{' ' * depth}#{line}"
+    str << "#{' ' * depth * INDENT_AMOUNT}#{line}"
     return_string = " => #{return_value}" if return_value
     if return_string && columns - str.string.length - return_string.length > 0
       str << return_string 
