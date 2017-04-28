@@ -33,7 +33,7 @@ module Parkour
     spaces = columns - str.string.length
     path = "#{path}:#{line_no}"
     spaces -= path.length
-    spaces = 0 if spaces < 0
+    spaces = 1 if spaces < 1 # Minimum one space
     str << "#{' ' * spaces}#{path}"
     str.string
   end
