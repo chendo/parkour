@@ -79,7 +79,7 @@ module Parkour
             begin_line(tp)
           elsif tp.event == :return
             @depth -= 1 if @depth > 0
-            return_value = tp.return_value.inspect
+            return_value = tp.return_value.inspect rescue "#<#{tp.return_value.class.to_s}>"
             finish_line(event: :return, return_value: return_value)
             begin_line(tp)
           else
