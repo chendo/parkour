@@ -110,7 +110,8 @@ module Parkour
     end
     tracepoint.enable
     block.call
-  ensure 
+  ensure
+    finish_line
     tracepoint.disable
   end
 end
