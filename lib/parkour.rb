@@ -66,6 +66,7 @@ module Parkour
     finish_line
   end
 
+  IGNORED_CLASSES = ['Capybara::Node::Element']
   def tracepoint
     @tracepoint ||= begin
       @depths = []
@@ -79,7 +80,11 @@ module Parkour
             begin_line(tp)
           elsif tp.event == :return
             @depth -= 1 if @depth > 0
-            return_value = tp.return_value.inspect rescue "#<#{tp.return_value.class.to_s}>"
+            return_value = if IGNORED_CLASSES.include?(tp.return_value.class.to_s)
+              "#<#{tp.return_value.class.to_s}>"
+            else
+              tp.return_value.inspect rescue "#<#{tp.return_value.class.to_s}>"
+            end
             finish_line(event: :return, return_value: return_value)
             begin_line(tp)
           else
