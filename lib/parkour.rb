@@ -27,7 +27,7 @@ module Parkour
     str << "#{' ' * depth * INDENT_AMOUNT}#{line}"
     return_string = " => #{return_value}" if return_value
     if return_string && columns - str.string.length - return_string.length > 0
-      str << return_string 
+      str << return_string
     end
 
     spaces = columns - str.string.length
@@ -43,7 +43,7 @@ module Parkour
     @last_line = {
       time: "...",
       line: line,
-      path: tp.path,
+      path: @path_filter.call(tp.path),
       event: tp.event,
       line_no: tp.lineno,
       depth: @depths.shift || @depth,
@@ -100,9 +100,14 @@ module Parkour
     @filters ||= []
   end
 
-  def trace(filters: [], output: nil, &block)
+  def path_filter
+    @path_filter ||= -> (path) { path }
+  end
+
+  def trace(filters: [], output: nil, path_filter: nil, &block)
     file = ENV['PARKOUR_FILE']
     @filters = filters.clone
+    @path_filter = path_filter
     @io = if file == 'stderr'
       $stderr
     elsif file
