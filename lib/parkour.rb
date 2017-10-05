@@ -20,6 +20,10 @@ module Parkour
     end
   end
 
+  def columns=(value)
+    @columns = value
+  end
+
   INDENT_AMOUNT = 2
   def format_line(time:, line:, path:, line_no:, depth:, event:, return_value: nil)
     str = StringIO.new
