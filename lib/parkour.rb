@@ -47,7 +47,7 @@ module Parkour
     @last_line = {
       time: "...",
       line: line,
-      path: @path_filter.call(tp.path),
+      path: path_filter.call(tp.path),
       event: tp.event,
       line_no: tp.lineno,
       depth: @depths.shift || @depth,
