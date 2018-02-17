@@ -13,9 +13,9 @@ module Parkour
     @columns ||= begin
       cols = ENV.fetch('COLUMNS', `tput cols`.strip).to_i
       if !$?.success?
-        100
+        120
       else
-        cols
+        cols > 40 ? cols : 120
       end
     end
   end
@@ -27,23 +27,19 @@ module Parkour
   INDENT_AMOUNT = 2
   def format_line(time:, line:, path:, line_no:, depth:, event:, return_value: nil)
     str = StringIO.new
-    str << "[#{time.rjust(9)}] "
-    str << "#{' ' * depth * INDENT_AMOUNT}#{line}"
-    return_string = " => #{return_value}" if return_value
-    if return_string && columns - str.string.length - return_string.length > 0
-      str << return_string
-    end
+    str << "#{line_no.to_s.rjust(4)} "
+    str << line
 
+    time = "#{time.rjust(9)}"
     spaces = columns - str.string.length
-    path = "#{path}:#{line_no}"
-    spaces -= path.length
+    spaces -= time.length
     spaces = 1 if spaces < 1 # Minimum one space
-    str << "#{' ' * spaces}#{path}"
+    str << "#{' ' * spaces}#{time}"
     str.string
   end
 
   def begin_line(tp)
-    line = File.readlines(tp.path, encoding: 'utf-8')[tp.lineno - 1].sub(/^\s+/, '').strip
+    line = File.readlines(tp.path, encoding: 'utf-8')[tp.lineno - 1].chomp
     @last_line = {
       time: "...",
       line: line,
@@ -52,6 +48,11 @@ module Parkour
       line_no: tp.lineno,
       depth: @depths.shift || @depth,
     }
+    if @current_path != @last_line[:path]
+      @current_path = @last_line[:path]
+      io.puts
+      io.puts Paint["#{@current_path}:", :blue]
+    end
     @time = Time.now.to_f
     io.print Paint[format_line(**@last_line), :yellow]
   rescue Errno::ENOENT
@@ -64,10 +65,6 @@ module Parkour
     @last_line[:time] = "#{((Time.now.to_f - @time) * 1000).round}ms"
     @last_line[:return_value] = return_value
     io.puts Paint[format_line(**@last_line), :green]
-  end
-
-  at_exit do
-    finish_line
   end
 
   IGNORED_CLASSES = ['Capybara::Node::Element']
@@ -108,9 +105,9 @@ module Parkour
     @path_filter ||= -> (path) { path }
   end
 
-  def trace(filters: [], output: nil, path_filter: nil, &block)
+  def trace(filters: nil, output: nil, path_filter: nil, &block)
     file = ENV['PARKOUR_FILE']
-    @filters = filters.clone
+    @filters = filters ? filters.clone : [Regexp.new(caller.first.split(':').first)]
     @path_filter = path_filter
     @io = if file == 'stderr'
       $stderr
