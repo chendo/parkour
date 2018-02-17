@@ -72,6 +72,11 @@ module Parkour
     io.puts Paint[format_line(**@last_line), :green]
   end
 
+  def flush
+    finish_line
+    @last_line = nil
+  end
+
   IGNORED_CLASSES = ['Capybara::Node::Element']
   def tracepoint
     @tracepoint ||= begin
