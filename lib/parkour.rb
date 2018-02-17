@@ -13,7 +13,7 @@ module Parkour
     @columns ||= begin
       if ENV['BUILDKITE']
         # force to 145 which is the the widest viewport
-        145
+        140
       else
         cols = ENV.fetch('COLUMNS', `tput cols`.strip).to_i
         if !$?.success?
