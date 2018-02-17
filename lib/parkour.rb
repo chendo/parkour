@@ -11,11 +11,16 @@ module Parkour
 
   def columns
     @columns ||= begin
-      cols = ENV.fetch('COLUMNS', `tput cols`.strip).to_i
-      if !$?.success?
+      if ENV['BUILDKITE']
+        # force to 120 cause tput cols reports 80
         120
       else
-        cols > 40 ? cols : 120
+        cols = ENV.fetch('COLUMNS', `tput cols`.strip).to_i
+        if !$?.success?
+          120
+        else
+          cols
+        end
       end
     end
   end
