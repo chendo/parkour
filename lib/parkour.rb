@@ -77,26 +77,10 @@ module Parkour
     @tracepoint ||= begin
       @depths = []
       @depth = 0
-      TracePoint.new(:line, :call, :return) do |tp|
+      TracePoint.new(:line) do |tp|
         if filters.empty? || filters.any? { |f| tp.path =~ f }
-          if tp.event == :call
-            @depths = [@depth, @depth + 1]
-            @depth += 1
-            finish_line
-            begin_line(tp)
-          elsif tp.event == :return
-            @depth -= 1 if @depth > 0
-            return_value = if IGNORED_CLASSES.include?(tp.return_value.class.to_s)
-              "#<#{tp.return_value.class.to_s}>"
-            else
-              tp.return_value.inspect rescue "#<#{tp.return_value.class.to_s}>"
-            end
-            finish_line(event: :return, return_value: return_value)
-            begin_line(tp)
-          else
-            finish_line
-            begin_line(tp)
-          end
+          finish_line
+          begin_line(tp)
         end
       end
     end
