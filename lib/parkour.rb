@@ -44,7 +44,8 @@ module Parkour
   end
 
   def begin_line(tp)
-    line = File.readlines(tp.path, encoding: 'utf-8')[tp.lineno - 1].chomp
+    line = File.readlines(tp.path, encoding: 'utf-8')[tp.lineno - 1]&.chomp
+    return if line.nil? # This can happen due to slim/erb etc cause the compiled line is different to the source line
     @last_line = {
       time: "...",
       line: line,
