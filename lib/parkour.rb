@@ -34,7 +34,7 @@ module Parkour
   def format_line(time:, line:, path:, line_no:, depth:, event:, return_value: nil)
     str = StringIO.new
     str << "#{line_no.to_s.rjust(4)} "
-    str << line
+    str << line.slice(0, columns - 20)
 
     time = "#{time.rjust(9)}"
     spaces = columns - str.string.length
