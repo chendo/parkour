@@ -1,5 +1,6 @@
 # encoding: utf-8
 require "parkour/version"
+require "parkour/lru"
 require "paint"
 
 module Parkour
@@ -43,8 +44,18 @@ module Parkour
     str.string
   end
 
+  def lines_for_file(path)
+    @cache ||= LRU.new(100)
+    lines = @cache.get(path)
+    return lines if lines
+
+    File.readlines(path, encoding: 'utf-8').tap do |lines|
+      @cache.put(path, lines)
+    end
+  end
+
   def begin_line(tp)
-    line = File.readlines(tp.path, encoding: 'utf-8')[tp.lineno - 1]&.chomp
+    line = lines_for_file(tp.path)[tp.lineno - 1]&.chomp
     return if line.nil? # This can happen due to slim/erb etc cause the compiled line is different to the source line
     @last_line = {
       time: "...",
