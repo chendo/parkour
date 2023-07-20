@@ -84,9 +84,11 @@ module Parkour
       @depths = []
       @depth = 0
       TracePoint.new(:line) do |tp|
+        @line_events += 1
         if filters.empty? || filters.any? { |f| tp.path =~ f }
           finish_line
           begin_line(tp)
+          @lines_processed += 1
         end
       end
     end
@@ -114,10 +116,16 @@ module Parkour
     else
       $stdout
     end
+
+    @line_events = 0
+    @lines_processed = 0
     tracepoint.enable
     block.call
   ensure
-    finish_line
     tracepoint.disable
+    finish_line
+    if ENV['PARKOUR_DEBUG']
+      @io.puts Paint["[PARKOUR] Lines: #{@lines_processed}/#{@line_events}", :blue]
+    end
   end
 end
